@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./FractionalOwnershipManager.sol"; 
 
 /**
  * @title GENFTPredictionMarket
@@ -58,7 +59,7 @@ contract GENFTPredictionMarket is Ownable {
 
                 // Transfer the reward to the predictor
                 // TransferReward(prediction.predictor, rewardAmount);
-
+                ownershipManager.initializeOwnership(tokenId, winners, shares);
                 prediction.isRewarded = true;
                 emit RewardClaimed(prediction.predictor, tokenId, rewardAmount);
             }

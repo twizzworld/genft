@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./FractionalOwnershipManager.sol"; 
 
 /**
  * @title GENFTMintingContract
@@ -26,14 +27,18 @@ contract GENFTMintingContract is ERC721, Ownable {
         _baseTokenURI = baseTokenURI;
     }
 
-    /**
-     * @dev Mint a new NFT.
-     * @param to Address to which the NFT will be minted.
-     */
-    function safeMint(address to) public onlyOwner {
+   // Reference to the Fractional Ownership Manager contract
+    FractionalOwnershipManager private ownershipManager;
+
+    // Modified mint function to handle fractional ownership
+    function safeMint(address[] memory owners, uint256[] memory shares) public onlyOwner {
+        require(owners.length == shares.length, "Owners and shares length mismatch");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
+        _safeMint(address(ownershipManager), tokenId); // Mint to the ownership manager contract
+
+        // Delegate the management of fractional ownership to the FractionalOwnershipManager
+        ownershipManager.initializeOwnership(tokenId, owners, shares);
     }
 
     /**
@@ -51,5 +56,4 @@ contract GENFTMintingContract is ERC721, Ownable {
         _baseTokenURI = baseTokenURI;
     }
 
-    // Additional functionalities specific to GENFT can be added here
 }
